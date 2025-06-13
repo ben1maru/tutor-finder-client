@@ -37,7 +37,7 @@ const TutorProfilePage = () => {
 
     const handleStartChat = async () => {
         try {
-            const { data } = await API.post('/user/chat/start', { tutorId: tutor.id });
+           const { data } = await API.post('/user/chat/conversations/findOrCreate', { user2_id: tutor.user_id });
             navigate(`/chat?active_id=${data.conversationId}`);
         } catch (err) {
             alert(err.response?.data?.message || 'Не вдалося почати чат.');

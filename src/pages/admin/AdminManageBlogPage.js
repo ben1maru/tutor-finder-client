@@ -1,5 +1,14 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Typography, Alert } from '@mui/material';
+import {
+    Typography,
+    Alert,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogContentText,
+    DialogTitle,
+    Button,
+} from '@mui/material';
 import { AdminLayout } from '../../components/layout/AdminLayout';
 import { BlogManager } from '../../components/admin/BlogManager';
 import { LoadingSpinner } from '../../components/common/LoadingSpinner';
@@ -9,6 +18,8 @@ const AdminManageBlogPage = () => {
     const [posts, setPosts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    const [confirmOpen, setConfirmOpen] = useState(false);
+    const [postToDelete, setPostToDelete] = useState(null);
 
     const fetchPosts = useCallback(async () => {
         setLoading(true);
@@ -53,16 +64,27 @@ const AdminManageBlogPage = () => {
             alert('Помилка збереження поста: ' + (err.response?.data?.message || err.message));
         }
     };
-    
-    const handleDeletePost = async (postId) => {
-        if (window.confirm('Ви впевнені, що хочете видалити цей пост?')) {
-            try {
-                await API.delete(`/admin/blog/${postId}`);
-                fetchPosts();
-            } catch (err) {
-                alert('Помилка видалення поста.');
-            }
+
+    const confirmDelete = (postId) => {
+        setPostToDelete(postId);
+        setConfirmOpen(true);
+    };
+
+    const handleDeleteConfirmed = async () => {
+        try {
+            await API.delete(`/admin/blog/${postToDelete}`);
+            fetchPosts();
+        } catch (err) {
+            alert('Помилка видалення поста.');
+        } finally {
+            setConfirmOpen(false);
+            setPostToDelete(null);
         }
+    };
+
+    const handleCancelDelete = () => {
+        setConfirmOpen(false);
+        setPostToDelete(null);
     };
 
     const renderContent = () => {
@@ -76,7 +98,7 @@ const AdminManageBlogPage = () => {
             <BlogManager
                 posts={posts}
                 onSave={handleSavePost}
-                onDelete={handleDeletePost}
+                onDelete={confirmDelete}
             />
         );
     };
@@ -85,6 +107,19 @@ const AdminManageBlogPage = () => {
         <AdminLayout>
             <Typography variant="h4" gutterBottom>Керування блогом</Typography>
             {renderContent()}
+
+            <Dialog open={confirmOpen} onClose={handleCancelDelete}>
+                <DialogTitle>Підтвердження видалення</DialogTitle>
+                <DialogContent>
+                    <DialogContentText>
+                        Ви впевнені, що хочете видалити цей пост? Цю дію неможливо скасувати.
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleCancelDelete}>Скасувати</Button>
+                    <Button onClick={handleDeleteConfirmed} color="error">Видалити</Button>
+                </DialogActions>
+            </Dialog>
         </AdminLayout>
     );
 };

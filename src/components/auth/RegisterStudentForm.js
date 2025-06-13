@@ -2,78 +2,98 @@ import React, { useState } from 'react';
 import { TextField, Button, Box, Alert } from '@mui/material';
 import PropTypes from 'prop-types';
 
-/**
- * Форма для реєстрації учня.
- * @param {object} props - Властивості компонента.
- * @param {Function} props.onSubmit - Функція, що викликається при відправці форми. Приймає об'єкт { fullName, email, password }.
- * @param {string} props.error - Повідомлення про помилку для відображення.
- * @param {boolean} props.loading - Вказує, чи триває процес відправки форми.
- */
-export const RegisterStudentForm = ({ onSubmit, error, loading }) => {
-    const [fullName, setFullName] = useState('');
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
+export const RegisterStudentForm = ({ onSubmit, error, success, loading }) => {
+  const [fullName, setFullName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [errors, setErrors] = useState({ fullName: '', email: '', password: '' });
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        onSubmit({ fullName, email, password });
-    };
+  const handleSubmit = (e) => {
+    e.preventDefault();
 
-    return (
-        <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
-            {error && <Alert severity="error" sx={{ width: '100%', mb: 2 }}>{error}</Alert>}
-            <TextField
-                margin="normal"
-                required
-                fullWidth
-                id="fullName"
-                label="Повне ім'я"
-                name="fullName"
-                autoComplete="name"
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-                disabled={loading}
-            />
-            <TextField
-                margin="normal"
-                required
-                fullWidth
-                id="email"
-                label="Електронна пошта"
-                name="email"
-                type="email"
-                autoComplete="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                disabled={loading}
-            />
-            <TextField
-                margin="normal"
-                required
-                fullWidth
-                name="password"
-                label="Пароль"
-                type="password"
-                id="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                disabled={loading}
-            />
-            <Button
-                type="submit"
-                fullWidth
-                variant="contained"
-                sx={{ mt: 3, mb: 2 }}
-                disabled={loading}
-            >
-                {loading ? 'Реєстрація...' : 'Зареєструватися'}
-            </Button>
-        </Box>
-    );
+    const newErrors = { fullName: '', email: '', password: '' };
+    let hasError = false;
+
+    if (!fullName.trim()) {
+      newErrors.fullName = "Введіть повне ім’я";
+      hasError = true;
+    }
+    if (!email.trim()) {
+      newErrors.email = "Введіть електронну пошту";
+      hasError = true;
+    }
+    if (!password.trim()) {
+      newErrors.password = "Введіть пароль";
+      hasError = true;
+    }
+
+    setErrors(newErrors);
+
+    if (!hasError) {
+      onSubmit({ fullName, email, password });
+    }
+  };
+
+  return (
+    <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1, maxWidth: 400 }}>
+      {error && (
+        <Alert severity="error" sx={{ width: '100%', mb: 2 }}>
+          {error}
+        </Alert>
+      )}
+      {success && (
+        <Alert severity="success" sx={{ width: '100%', mb: 2 }}>
+          {success}
+        </Alert>
+      )}
+      <TextField
+        fullWidth
+        label="Повне ім’я"
+        value={fullName}
+        onChange={(e) => setFullName(e.target.value)}
+        error={!!errors.fullName}
+        helperText={errors.fullName}
+        margin="normal"
+        disabled={loading}
+      />
+      <TextField
+        fullWidth
+        label="Електронна пошта"
+        type="email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        error={!!errors.email}
+        helperText={errors.email}
+        margin="normal"
+        disabled={loading}
+      />
+      <TextField
+        fullWidth
+        label="Пароль"
+        type="password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        error={!!errors.password}
+        helperText={errors.password}
+        margin="normal"
+        disabled={loading}
+      />
+      <Button
+        type="submit"
+        variant="contained"
+        fullWidth
+        sx={{ mt: 2 }}
+        disabled={loading}
+      >
+        {loading ? 'Реєстрація...' : 'Зареєструватися'}
+      </Button>
+    </Box>
+  );
 };
 
 RegisterStudentForm.propTypes = {
-    onSubmit: PropTypes.func.isRequired,
-    error: PropTypes.string,
-    loading: PropTypes.bool,
+  onSubmit: PropTypes.func.isRequired,
+  error: PropTypes.string,
+  success: PropTypes.string,
+  loading: PropTypes.bool,
 };

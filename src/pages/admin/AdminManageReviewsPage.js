@@ -1,5 +1,15 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Typography, Paper, Alert } from '@mui/material';
+import {
+    Typography,
+    Paper,
+    Alert,
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogContentText,
+    DialogActions,
+    Button,
+} from '@mui/material';
 import { AdminLayout } from '../../components/layout/AdminLayout';
 import { ReviewsTable } from '../../components/admin/ReviewsTable';
 import { LoadingSpinner } from '../../components/common/LoadingSpinner';
@@ -9,6 +19,8 @@ const AdminManageReviewsPage = () => {
     const [reviews, setReviews] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    const [confirmOpen, setConfirmOpen] = useState(false);
+    const [reviewToDelete, setReviewToDelete] = useState(null);
 
     const fetchReviews = useCallback(async () => {
         setLoading(true);
@@ -27,16 +39,27 @@ const AdminManageReviewsPage = () => {
         fetchReviews();
     }, [fetchReviews]);
 
-    const handleDelete = async (reviewId) => {
-        if (window.confirm('Ви впевнені, що хочете назавжди видалити цей відгук?')) {
-            try {
-                await API.delete(`/admin/reviews/${reviewId}`);
-                fetchReviews();
-            } catch (err) {
-                alert('Помилка видалення відгуку.');
-                console.error(err);
-            }
+    const requestDelete = (reviewId) => {
+        setReviewToDelete(reviewId);
+        setConfirmOpen(true);
+    };
+
+    const handleDeleteConfirmed = async () => {
+        try {
+            await API.delete(`/admin/reviews/${reviewToDelete}`);
+            fetchReviews();
+        } catch (err) {
+            alert('Помилка видалення відгуку.');
+            console.error(err);
+        } finally {
+            setConfirmOpen(false);
+            setReviewToDelete(null);
         }
+    };
+
+    const handleCancelDelete = () => {
+        setConfirmOpen(false);
+        setReviewToDelete(null);
     };
 
     return (
@@ -45,10 +68,27 @@ const AdminManageReviewsPage = () => {
                 Керування відгуками
             </Typography>
             <Paper sx={{ p: 2, mt: 2 }}>
-                {loading ? <LoadingSpinner /> : error ? <Alert severity="error">{error}</Alert> : (
-                    <ReviewsTable reviews={reviews} onDelete={handleDelete} />
+                {loading ? (
+                    <LoadingSpinner />
+                ) : error ? (
+                    <Alert severity="error">{error}</Alert>
+                ) : (
+                    <ReviewsTable reviews={reviews} onDelete={requestDelete} />
                 )}
             </Paper>
+
+            <Dialog open={confirmOpen} onClose={handleCancelDelete}>
+                <DialogTitle>Підтвердження видалення</DialogTitle>
+                <DialogContent>
+                    <DialogContentText>
+                        Ви впевнені, що хочете назавжди видалити цей відгук? Цю дію не можна скасувати.
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleCancelDelete}>Скасувати</Button>
+                    <Button onClick={handleDeleteConfirmed} color="error">Видалити</Button>
+                </DialogActions>
+            </Dialog>
         </AdminLayout>
     );
 };
