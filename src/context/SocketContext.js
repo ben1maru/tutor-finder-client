@@ -12,7 +12,7 @@ export const SocketProvider = ({ children }) => {
         // Ми встановлюємо з'єднання тільки якщо користувач залогінений
         if (user) {
             // Підключаємося до нашого backend сервера
-            const newSocket = io('http://localhost:5000');
+            const newSocket = io('https://tutors-finders-server.onrender.com');
 
             // Повідомляємо сервер, що цей користувач приєднався,
             // відправляючи його ID. Це потрібно для приватних повідомлень.
