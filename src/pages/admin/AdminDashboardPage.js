@@ -11,6 +11,7 @@ import SchoolIcon from '@mui/icons-material/School';
 import RateReviewIcon from '@mui/icons-material/RateReview';
 import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty';
 
+
 const AdminDashboardPage = () => {
     const [stats, setStats] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -41,6 +42,7 @@ const AdminDashboardPage = () => {
 
     return (
         <AdminLayout>
+        
             <Typography variant="h4" gutterBottom>
                 Дашборд
             </Typography>

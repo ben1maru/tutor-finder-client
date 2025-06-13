@@ -8,7 +8,7 @@ import PeopleIcon from '@mui/icons-material/People';
 import SchoolIcon from '@mui/icons-material/School';
 import RateReviewIcon from '@mui/icons-material/RateReview';
 import ArticleIcon from '@mui/icons-material/Article';
-
+import { Header } from './Header';
 const drawerWidth = 240;
 
 const menuItems = [
@@ -21,41 +21,44 @@ const menuItems = [
 
 export const AdminLayout = ({ children }) => {
     return (
-        <Box sx={{ display: 'flex' }}>
-            <Drawer
-                variant="permanent"
-                sx={{
-                    width: drawerWidth,
-                    flexShrink: 0,
-                    [`& .MuiDrawer-paper`]: { width: drawerWidth, boxSizing: 'border-box' },
-                }}
-            >
-                <Toolbar /> 
-                <Box sx={{ overflow: 'auto' }}>
-                    <List>
-                        {menuItems.map((item) => (
-                            <ListItem key={item.text} disablePadding>
-                                {/* 
-                                    NavLink буде обгорнутий в ListItemButton, що є стандартною
-                                    практикою і не викликає конфліктів onClick.
-                                */}
-                                <ListItemButton
-                                    component={NavLink} 
-                                    to={item.path}
-                                    end={item.path === '/admin'}
-                                >
-                                    <ListItemIcon>{item.icon}</ListItemIcon>
-                                    <ListItemText primary={item.text} />
-                                </ListItemButton>
-                            </ListItem>
-                        ))}
-                    </List>
+        <>
+            <Header />
+            <Box sx={{ display: 'flex' }}>
+                <Drawer
+                    variant="permanent"
+                    sx={{
+                        width: drawerWidth,
+                        flexShrink: 0,
+                        [`& .MuiDrawer-paper`]: { width: drawerWidth, boxSizing: 'border-box' },
+                    }}
+                >
+                    <Toolbar /> 
+                    <Box sx={{ overflow: 'auto' }}>
+                        <List>
+                            {menuItems.map((item) => (
+                                <ListItem key={item.text} disablePadding>
+                                    {/* 
+                                        NavLink буде обгорнутий в ListItemButton, що є стандартною
+                                        практикою і не викликає конфліктів onClick.
+                                    */}
+                                    <ListItemButton
+                                        component={NavLink} 
+                                        to={item.path}
+                                        end={item.path === '/admin'}
+                                    >
+                                        <ListItemIcon>{item.icon}</ListItemIcon>
+                                        <ListItemText primary={item.text} />
+                                    </ListItemButton>
+                                </ListItem>
+                            ))}
+                        </List>
+                    </Box>
+                </Drawer>
+                <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
+                    <Toolbar /> 
+                    {children}
                 </Box>
-            </Drawer>
-            <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
-                <Toolbar /> 
-                {children}
             </Box>
-        </Box>
+        </>
     );
 };
