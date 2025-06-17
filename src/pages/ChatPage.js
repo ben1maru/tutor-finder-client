@@ -23,8 +23,6 @@ const ChatPage = () => {
 
     const handleSelectConversation = useCallback(async (conversationId) => {
         if (!conversationId) return;
-
-        // Видаляємо `active_id` з URL, щоб він не заважав при наступних кліках
         searchParams.delete('active_id');
         setSearchParams(searchParams, { replace: true });
 
@@ -40,7 +38,7 @@ const ChatPage = () => {
         } finally {
             setLoadingMessages(false);
         }
-    }, [setSearchParams]);
+    }, [setSearchParams, searchParams]);
 
     const fetchConversations = useCallback(async () => {
         if (!user) return;
@@ -62,13 +60,12 @@ const ChatPage = () => {
 
     useEffect(() => {
         fetchConversations();
-    }, [user]); // Залежність від fetchConversations тут може створювати цикл, тому викликаємо тільки по user
+    }, [user]);
 
     useEffect(() => {
         if (!socket) return;
 
         const handleReceiveMessage = (newMessage) => {
-            // Оновлюємо список діалогів, щоб показати останнє повідомлення
             setConversations(prev => 
                 prev.map(conv => 
                     conv.conversation_id === newMessage.conversation_id 
@@ -76,8 +73,6 @@ const ChatPage = () => {
                         : conv
                 ).sort((a, b) => new Date(b.last_message_date) - new Date(a.last_message_date))
             );
-
-            // Додаємо повідомлення, якщо відкрито відповідний чат
             if (newMessage.conversation_id === activeConversationId) {
                 setMessages(prev => [...prev, newMessage]);
             }
@@ -107,8 +102,29 @@ const ChatPage = () => {
             <Typography variant="h4" gutterBottom>Чати</Typography>
             {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
             
-            <Paper sx={{ height: '75vh', display: 'flex', border: 1, borderColor: 'divider' }}>
-                <Grid item xs={12} md={4} sx={{ borderRight: 1, borderColor: 'divider', overflowY: 'auto' }}>
+            <Paper 
+                sx={{ 
+                    height: { xs: 'auto', md: '75vh' }, 
+                    display: 'flex', 
+                    flexDirection: { xs: 'column', md: 'row' }, 
+                    border: 1, 
+                    borderColor: 'divider',
+                    overflow: 'hidden'
+                }}
+            >
+                <Grid 
+                    item 
+                    xs={12} md={4}
+                    sx={{ 
+                        borderRight: { xs: 0, md: 1 }, 
+                        borderBottom: { xs: 1, md: 0 },
+                        borderColor: 'divider', 
+                        overflowY: 'auto',
+                        height: { xs: 'auto', md: '100%' },
+                        maxHeight: { xs: '40vh', md: 'none' },
+                        minWidth: { md: 320 }
+                    }}
+                >
                     {loadingConversations ? <LoadingSpinner /> : (
                         <ConversationList
                             conversations={conversations}
@@ -118,12 +134,26 @@ const ChatPage = () => {
                     )}
                 </Grid>
 
-                <Grid item xs={12} md={8} sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+                <Grid 
+                    item 
+                    xs={12} md={8}
+                    sx={{ 
+                        display: 'flex', 
+                        flexDirection: 'column', 
+                        height: { xs: 'auto', md: '100%' },
+                        minHeight: { xs: '40vh', md: 'none' }
+                    }}
+                >
                     {loadingMessages ? <LoadingSpinner /> : (
                         activeConversationId ? (
                             <MessageWindow
                                 messages={messages}
                                 onSendMessage={handleSendMessage}
+                                sx={{
+                                    flex: 1,
+                                    height: { xs: '40vh', md: '100%' },
+                                    minHeight: 0
+                                }}
                             />
                         ) : (
                             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
