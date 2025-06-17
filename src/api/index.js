@@ -2,7 +2,7 @@
 import axios from 'axios';
 
 const API = axios.create({
-    baseURL: 'https://tutorsfindersserver-production.up.railway.app/api' // URL вашого backend
+    baseURL: 'https://tutors-finders-server-2.onrender.com/api' // URL вашого backend
 });
 
 // Перехоплювач (interceptor) для додавання токена до кожного запиту
